@@ -36,6 +36,7 @@ declare global {
       skipToIdle: () => void;
       playDialogue: (index: number) => boolean;
       startAutomaticDialoguePlayback: () => boolean;
+      resetDialoguePlayback: () => void;
       clearDialogueTrace: () => void;
       setFpsLimit: (fps: number) => void;
       retryBgm: () => Promise<boolean>;
