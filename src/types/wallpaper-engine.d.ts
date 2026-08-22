@@ -35,6 +35,8 @@ declare global {
       replayIntro: () => void;
       skipToIdle: () => void;
       playDialogue: (index: number) => boolean;
+      startAutomaticDialoguePlayback: () => boolean;
+      clearDialogueTrace: () => void;
       setFpsLimit: (fps: number) => void;
       retryBgm: () => Promise<boolean>;
       setUserProperties: (

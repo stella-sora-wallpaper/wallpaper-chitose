@@ -44,7 +44,7 @@ export interface DialogueDefinition {
   motionAnimation: string;
   attachmentAnimation: string;
   duration: number;
-  lines: readonly [DialogueLine, DialogueLine];
+  lines: readonly DialogueLine[];
 }
 
 // Replace the placeholder model/animation/bone values below with values
