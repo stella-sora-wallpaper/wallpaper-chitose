@@ -180,6 +180,8 @@ export const WALLPAPER_DEFINITION = defineWallpaper({
   audio: {
     bgm: BGM,
     voicePath,
+    voiceLocales: VOICE_LOCALES,
+    subtitleLocales: SUBTITLE_LOCALES,
   },
 });
 
