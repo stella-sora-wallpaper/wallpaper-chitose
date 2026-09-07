@@ -56,7 +56,7 @@ When creating a character project, replace the following with real content:
 | `MODEL` in `src/config.ts` | model paths, animations/bones/hit parameters, design viewport |
 | `BGM` / `DIALOGUES` in `src/config.ts` | BGM file and dialogue/subtitle content |
 | `public/project.json` | title, description, preview, rating, and tags |
-| `public/preview.gif` | a real 256×256 animated preview image |
+| `public/preview.gif` | generated 256×256 animated preview image (created during acceptance) |
 | `public/THIRD-PARTY-NOTICES.txt` | provenance and license records for the real assets |
 | `public/OFFLINE-README.txt` | version number and installation notes |
 | `research/PROVENANCE.md` | provenance and hashes for every binary asset |

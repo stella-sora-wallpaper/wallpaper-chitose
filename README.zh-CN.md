@@ -47,7 +47,7 @@
 | `src/config.ts` 中的 `MODEL` | 模型路径、动画/骨骼/命中参数、设计视口 |
 | `src/config.ts` 中的 `BGM` / `DIALOGUES` | BGM 文件与对话/字幕内容 |
 | `public/project.json` | 标题、描述、预览图、分级与标签 |
-| `public/preview.gif` | 真实的 256×256 动画预览图 |
+| `public/preview.gif` | 验收阶段生成的真实 256×256 动画预览图 |
 | `public/THIRD-PARTY-NOTICES.txt` | 真实资源的来源与许可记录 |
 | `public/OFFLINE-README.txt` | 版本号与安装说明 |
 | `research/PROVENANCE.md` | 每个二进制资源的来源与哈希记录 |
