@@ -28,7 +28,6 @@
                                             "src/main.ts",
                                             "src/config.ts",
                                             "public/project.json",
-                                            "public/preview.gif",
                                             "README.md",
                                             ".gitignore"
                                         ],
