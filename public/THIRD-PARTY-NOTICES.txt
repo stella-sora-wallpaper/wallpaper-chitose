@@ -1,8 +1,7 @@
 Third-Party Notices
 ===================
 
-This wallpaper is built on the ba-memorial-lobby-wallpaper-runtime and
-ba-memorial-lobby-wallpaper-toolkit packages. The following third-party
+This wallpaper is built on the ba-memorial-lobby-wallpaper-runtime package. The following third-party
 components are bundled in the distribution.
 
 1. Spine WebGL Runtime 3.8

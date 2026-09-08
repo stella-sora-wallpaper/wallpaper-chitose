@@ -7,7 +7,6 @@
 
 - **ba-memorial-lobby-wallpaper-runtime**：通用运行时框架，负责 Spine 渲染、交互、对话、
   音频、设置、日志与调试面板。
-- **ba-memorial-lobby-wallpaper-toolkit**：通用构建、校验、打包工具。
 - **本模板**：薄型壁纸项目骨架，只保留角色资产、内容定义、Wallpaper Engine 元数据与
   项目文档。
 

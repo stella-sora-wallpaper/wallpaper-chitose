@@ -9,8 +9,6 @@ separates "character-specific content" from the shared runtime/toolchain:
 - **ba-memorial-lobby-wallpaper-runtime**: the shared runtime framework — Spine
   rendering, interactions, dialogues, audio, settings, logging, and the debug
   panel.
-- **ba-memorial-lobby-wallpaper-toolkit**: the shared build, validation, and
-  packaging tools.
 - **This template**: a thin wallpaper project skeleton that keeps only
   character assets, content definitions, Wallpaper Engine metadata, and project
   documentation.
