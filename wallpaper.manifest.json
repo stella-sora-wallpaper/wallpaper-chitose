@@ -16,6 +16,7 @@
       "src/main.ts",
       "src/config.ts",
       "src/trial/ResourceStagingPanel.ts",
+      "vite.config.ts",
       "public/project.json",
       "README.md",
       ".gitignore"
