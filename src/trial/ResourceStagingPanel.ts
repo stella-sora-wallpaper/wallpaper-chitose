@@ -20,6 +20,9 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     </dl>`;
   root.append(panel);
   root.classList.add("stella-trial");
+  root.querySelector<HTMLElement>("#loading")?.setAttribute("hidden", "");
+  const shellState = root.querySelector<HTMLElement>("#status-state");
+  if (shellState) shellState.textContent = "资源待补齐";
   canvas.dataset.trialState = "ready";
   const status = panel.querySelector<HTMLElement>("[data-trial-status]");
   const clicks = panel.querySelector<HTMLElement>("[data-trial-clicks]");
