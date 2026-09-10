@@ -94,7 +94,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     </dl>`;
   root.append(panel);
   root.classList.add("stella-trial");
-  const debugPanel = mountTrialDebugPanel(root, wallpaperLogger);
+  let replayOpening: () => void = () => undefined;
+  let skipToIdle: () => void = () => undefined;
+  const debugPanel = mountTrialDebugPanel(root, wallpaperLogger, {
+    onReplayOpening: () => replayOpening(),
+    onSkipToIdle: () => skipToIdle(),
+  });
   root.querySelector<HTMLElement>("#loading")?.setAttribute("hidden", "");
   debugPanel.setPhase("Live2D 加载中");
 
@@ -213,23 +218,25 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       index: motionEntries.findIndex((entry) => pattern.test(entry.File)),
       durationMs,
     })).find(({ index }) => index >= 0);
-    if (openingMotion) {
-      await model.startMotion("Full", openingMotion.index, MOTION_PRIORITY_NORMAL);
-      motionLabel.textContent = `${basename(motionEntries[openingMotion.index]?.File ?? "full")} · official opening`;
-      openingTimer = window.setTimeout(() => {
-        if (model?.loaded && idleIndex >= 0) {
-          void model.startMotion("Full", idleIndex, MOTION_PRIORITY_IDLE);
-          motionLabel.textContent = basename(motionEntries[idleIndex]?.File ?? "idle");
-          debugPanel.setAnimation(motionLabel.textContent);
-          debugPanel.setInteraction("待机");
-        }
-      }, openingMotion.durationMs);
-    } else if (idleIndex >= 0) {
-      await model.startMotion("Full", idleIndex, MOTION_PRIORITY_IDLE);
+    skipToIdle = () => {
+      if (!model?.loaded || idleIndex < 0) return;
+      if (openingTimer !== undefined) window.clearTimeout(openingTimer);
+      void model.startMotion("Full", idleIndex, MOTION_PRIORITY_IDLE);
       motionLabel.textContent = basename(motionEntries[idleIndex]?.File ?? "idle");
       debugPanel.setAnimation(motionLabel.textContent);
       debugPanel.setInteraction("待机");
-    }
+    };
+    replayOpening = () => {
+      if (!model?.loaded || !openingMotion) return;
+      if (openingTimer !== undefined) window.clearTimeout(openingTimer);
+      void model.startMotion("Full", openingMotion.index, MOTION_PRIORITY_NORMAL);
+      motionLabel.textContent = `${basename(motionEntries[openingMotion.index]?.File ?? "full")} · official opening`;
+      debugPanel.setAnimation(motionLabel.textContent);
+      debugPanel.setInteraction("入场");
+      openingTimer = window.setTimeout(() => skipToIdle(), openingMotion.durationMs);
+    };
+    if (openingMotion) replayOpening();
+    else skipToIdle();
     status.textContent = state.paused ? "paused" : "ready";
     debugPanel.setPhase(status.textContent);
     canvas.dataset.trialState = "ready";

@@ -12,6 +12,11 @@ export interface TrialDebugPanel {
   dispose(): void;
 }
 
+export interface TrialDebugPanelCallbacks {
+  onReplayOpening(): void;
+  onSkipToIdle(): void;
+}
+
 function required<T extends HTMLElement>(root: HTMLElement, selector: string): T {
   const element = root.querySelector<T>(selector);
   if (!element) throw new Error(`Missing runtime debug element: ${selector}`);
@@ -28,6 +33,7 @@ function renderLogSnapshot(logger: WallpaperLogger): string {
 export function mountTrialDebugPanel(
   root: HTMLElement,
   logger: WallpaperLogger,
+  callbacks: TrialDebugPanelCallbacks,
 ): TrialDebugPanel {
   const panel = required<HTMLElement>(root, "#status-panel");
   const toggle = required<HTMLButtonElement>(root, "#debug-panel-toggle");
@@ -45,7 +51,7 @@ export function mountTrialDebugPanel(
     logHorizontalScrollbarThumb: required<HTMLElement>(root, "#wallpaper-log-scrollbar-horizontal-thumb"),
   });
 
-  let expanded = new URLSearchParams(window.location.search).has("debug");
+  let expanded = !new URLSearchParams(window.location.search).has("hideDebug");
   const syncVisibility = () => {
     toggle.hidden = false;
     toggle.disabled = false;
@@ -80,6 +86,15 @@ export function mountTrialDebugPanel(
     pointerController.requestRefresh();
   };
   for (const button of groupButtons) button.addEventListener("click", () => toggleGroup(button));
+
+  required<HTMLButtonElement>(root, "#debug-replay-intro").addEventListener(
+    "click",
+    () => callbacks.onReplayOpening(),
+  );
+  required<HTMLButtonElement>(root, "#debug-skip-idle").addEventListener(
+    "click",
+    () => callbacks.onSkipToIdle(),
+  );
 
   const panelScale = required<HTMLInputElement>(root, "#debug-panel-scale");
   const panelScaleOutput = required<HTMLOutputElement>(root, "#debug-panel-scale-output");

@@ -1,6 +1,8 @@
 .stella-trial { background: #071c25; }
 .stella-game-scene { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #70b6b2; transition: none; }
-.stella-trial #wallpaper { position: relative; z-index: 1; cursor: crosshair; background: transparent; }
+.stella-trial #wallpaper { position: absolute; z-index: 1; cursor: crosshair; background: transparent; }
+.stella-trial .debug-panel-toggle { z-index: 10; color: rgba(255,255,255,.92); border-color: rgba(177,221,255,.5); background: rgba(7,14,29,.72); }
+.stella-trial .status-panel { z-index: 9; }
 .stella-game-scene-layer { position: absolute; display: block; max-width: none; pointer-events: none; user-select: none; transform-origin: center; }
 .stella-game-scene-base { transform-origin: center; }
 .stella-game-scene[data-scene-state="error"] { background: #071c25; }
