@@ -21,6 +21,7 @@ public/assets/
 public/vendor/
 research/spine-inspection.json
 /log.txt
+.acceptance/
 
 # OS metadata
 .DS_Store
