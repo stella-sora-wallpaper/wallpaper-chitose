@@ -15,11 +15,6 @@ createWallpaperShell(root, {
   editionLabel: PROJECT.editionLabel,
 });
 
-const app = new App(root, {
-  definition: WALLPAPER_DEFINITION,
-  findDialogueLine,
-  logger: wallpaperLogger,
-});
 async function hasPreparedRuntimeAssets(): Promise<boolean> {
   const paths = ["./vendor/spine-webgl-4.2.js", WALLPAPER_DEFINITION.model.binary];
   const results = await Promise.all(paths.map(async (path) => {
@@ -30,6 +25,11 @@ async function hasPreparedRuntimeAssets(): Promise<boolean> {
 }
 
 if (await hasPreparedRuntimeAssets()) {
+  const app = new App(root, {
+    definition: WALLPAPER_DEFINITION,
+    findDialogueLine,
+    logger: wallpaperLogger,
+  });
   void loadSpineRuntime(WALLPAPER_DEFINITION.model.spineVersion).then(() => app.start());
 } else {
   await mountResourceStagingPanel(root);
