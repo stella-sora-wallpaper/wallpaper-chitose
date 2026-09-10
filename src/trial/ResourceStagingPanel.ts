@@ -21,7 +21,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   root.append(panel);
   root.classList.add("stella-trial");
   root.querySelector<HTMLElement>("#loading")?.setAttribute("hidden", "");
-  const shellState = root.querySelector<HTMLElement>("#status-state");
+  const shellState = root.querySelector<HTMLElement>("#status-phase");
   if (shellState) shellState.textContent = "资源待补齐";
   canvas.dataset.trialState = "ready";
   const status = panel.querySelector<HTMLElement>("[data-trial-status]");
