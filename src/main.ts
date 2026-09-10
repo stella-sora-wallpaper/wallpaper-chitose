@@ -18,7 +18,11 @@ createWallpaperShell(root, {
 async function hasPreparedRuntimeAssets(): Promise<boolean> {
   const paths = ["./vendor/spine-webgl-4.2.js", WALLPAPER_DEFINITION.model.binary];
   const results = await Promise.all(paths.map(async (path) => {
-    try { return (await fetch(path, { method: "HEAD", cache: "no-store" })).ok; }
+    try {
+      const response = await fetch(path, { cache: "no-store" });
+      const contentType = response.headers.get("content-type") ?? "";
+      return response.ok && !contentType.includes("text/html");
+    }
     catch { return false; }
   }));
   return results.every(Boolean);
