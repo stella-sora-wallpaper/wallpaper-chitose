@@ -7,4 +7,6 @@ Wallpaper Engine shell and host bridge.
 No Stella Sora game binaries are bundled in this repository. The source game
 and its characters, art, audio, and software remain the property of their
 respective rightsholders. Any future local asset addition must be documented
-in research/PROVENANCE.md before distribution.
+in the repository's [interaction-content issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)
+and [resource-pool licensing issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2)
+before distribution.

@@ -16,4 +16,4 @@ resource acquisition
   -> package
 ```
 
-Pipeline records source provenance, hashes, generated tiers, build artifacts, acceptance evidence, and package checksums. Original source records remain under `research/`; prepared assets remain project content.
+Pipeline records source provenance, hashes, generated tiers, build artifacts, acceptance evidence, and package checksums. Source and licensing records for this trial are maintained in the repository's GitHub Issues; prepared assets remain project content.

@@ -24,7 +24,7 @@ npm run dev
 
 ## 资源与权利边界
 
-仓库不包含社区解包的游戏二进制文件。加入模型、纹理、动作、语音或音乐前，应在 `research/STELLA-SORA-RESEARCH.md` 和 `research/PROVENANCE.md` 中记录来源与允许用途。下载链接或社区镜像本身不等于获得再分发许可。
+仓库不包含社区解包的游戏二进制文件。Wiki 调研、互动内容索引和资源来源记录统一放在 GitHub 的[互动内容 Issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)与[资源池许可 Issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2)，不作为本地研究文档维护。加入模型、纹理、动作、语音或音乐前，必须先记录来源与允许用途。下载链接或社区镜像本身不等于获得再分发许可。
 
 ## 参考
 

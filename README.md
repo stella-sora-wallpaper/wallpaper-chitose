@@ -32,10 +32,13 @@ to the shared runtime `App`; otherwise it stays in the safe staging preview.
 
 ## Asset and rights boundary
 
-The repository contains no community-extracted game binaries. Before adding any
-model, texture, motion, voice, or music, record its origin and permitted use in
-`research/STELLA-SORA-RESEARCH.md` and `research/PROVENANCE.md`. Do not treat a
-download link or a community mirror as redistribution permission.
+The repository contains no community-extracted game binaries. Research notes,
+Wiki findings, and resource provenance are tracked in the GitHub issues for
+[interaction content](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)
+and [resource-pool licensing](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2).
+Before adding any model, texture, motion, voice, or music, record its origin and
+permitted use there. Do not treat a download link or a community mirror as
+redistribution permission.
 
 ## References
 

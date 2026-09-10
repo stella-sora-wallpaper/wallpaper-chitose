@@ -5,7 +5,7 @@ This repository is a content repository managed by the wallpaper Pipeline.
 ```text
 src/                       Character definition and application entry
 public/                    Wallpaper Engine metadata and prepared runtime assets
-research/                  Provenance and checksum records
+GitHub Issues              Research and resource provenance records
 wallpaper.manifest.json    Declarative Pipeline project contract
 package.json               Runtime application dependency only
 tsconfig.json              Editor-facing TypeScript configuration
