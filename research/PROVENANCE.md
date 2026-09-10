@@ -1,19 +1,8 @@
-# Provenance Records
+# 资源来源记录
 
-Every binary asset that enters `local-assets/original/` must be recorded here
-so the release package can be reproduced and its rights documented.
+当前试作仓库不包含《星塔旅人》的模型、纹理、动作、语音或音乐二进制文件。
 
-For each asset group, record:
+加入任何本地资源前，记录来源 URL、原始文件名、下载日期、文件哈希、处理工具版本、
+权利归属和是否允许随壁纸再分发。社区分享链接仅作为线索，不视为授权证明。
 
-- Source repository / URL and the exact commit or file ID.
-- Original file name, byte size, and SHA-256.
-- Download date and who ran the download.
-- Rights attribution and whether the asset may be redistributed in the
-  release package.
-- Processing pipeline (conversion, upscaling) and the tool versions used.
-
-The pinned checksum list lives in `research/checksums.sha256` and is generated
-with `npm run generate:checksums` after the originals are placed in
-`local-assets/original/`.
-
-See docs/ASSET-PIPELINE.md for the full workflow.
+当前运行时依赖：`ba-memorial-lobby-wallpaper-runtime@^0.5.0`。

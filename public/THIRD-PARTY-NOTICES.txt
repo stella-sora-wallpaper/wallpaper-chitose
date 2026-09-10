@@ -1,33 +1,10 @@
 Third-Party Notices
 ===================
 
-This wallpaper is built on the ba-memorial-lobby-wallpaper-runtime package. The following third-party
-components are bundled in the distribution.
+This trial uses the `ba-memorial-lobby-wallpaper-runtime` package for its Web
+Wallpaper Engine shell and host bridge.
 
-1. Spine WebGL Runtime 3.8
-   - Project: EsotericSoftware/spine-runtimes (3.8 branch)
-   - License: Spine Runtimes License Agreement, see
-     vendor/SPINE-RUNTIMES-LICENSE.txt
-   - The runtime is pinned to a fixed commit; record the commit hash and the
-     exact skeleton version (currently 3.8.99) in your provenance records.
-
-2. Character model, textures, voices, and BGM
-   - Replace this entry with the actual sources, license status, and hash
-     records for the character assets used by this wallpaper.
-
-3. Texture upscaling (Real-CUGAN, optional 4K/8K tiers)
-   - Replace this entry with the Real-CUGAN version and model set used when
-     the upscaled tiers are generated.
-
-Copyright Notice
-----------------
-Blue Archive characters, names, art, audio, music, and related materials are
-owned by their official rightsholders (NEXON / NEXON Games, Yostar where
-applicable). This unofficial fan project and its assets are provided for
-informational and educational purposes only, without any commercial intent.
-The project is not affiliated with, sponsored by, or endorsed by those
-companies. The affected assets will be removed upon request from the rights
-holders.
-
-Keep this file accurate before shipping; the distribution validator requires
-it to mention "Spine 3.8" and the project-specific asset sections.
+No Stella Sora game binaries are bundled in this repository. The source game
+and its characters, art, audio, and software remain the property of their
+respective rightsholders. Any future local asset addition must be documented
+in research/PROVENANCE.md before distribution.

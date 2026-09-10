@@ -1,111 +1,44 @@
-# ba-memorial-lobby-wallpaper-template
+# Stella Sora · Chitose wallpaper trial
 
-English | [简体中文](README.zh-CN.md)
+This is a small, content-first Web Wallpaper Engine experiment for Chitose
+(千都世) from *Stella Sora*. It reuses the public-facing shell and host bridge
+from `ba-memorial-lobby-wallpaper-runtime`, but it intentionally does not bring
+in the Blue Archive resource acquisition or release pipeline.
 
-A GitHub template repository for Blue Archive memorial-lobby-style Wallpaper
-Engine web wallpapers. It mirrors the structure of `wallpaper-hare-camping` and
-separates "character-specific content" from the shared runtime/toolchain:
+## Current scope
 
-- **ba-memorial-lobby-wallpaper-runtime**: the shared runtime framework — Spine
-  rendering, interactions, dialogues, audio, settings, logging, and the debug
-  panel.
-- **This template**: a thin wallpaper project skeleton that keeps only
-  character assets, content definitions, Wallpaper Engine metadata, and project
-  documentation.
+- Runtime shell, logging bootstrap, metadata, and Wallpaper Engine bridge are wired.
+- A resource-staging preview keeps the project usable before model assets arrive.
+- Mouse movement and canvas clicks are represented in the preview; host general,
+  user-property, pause, and resume callbacks update the visible status.
+- Game-specific Live2D/Unity files, voice, BGM, and dialogue text are not bundled.
 
-## Quick Start
+The source-game model path is treated as Live2D/Unity input. The reused BA
+runtime currently expects Spine assets, so a real Chitose model requires a
+reviewed adapter/conversion step before the `App` path is enabled.
 
-1. Create a new repository from this one with GitHub's **Use this template**.
-2. After cloning, read [docs/CREATING-A-PROJECT.md](docs/CREATING-A-PROJECT.md)
-   and replace the placeholders in `src/config.ts`, `public/project.json`, and
-   other files per the checklist.
-3. Put the original model, audio, and BGM into `local-assets/original/` and
-   generate the checksum manifest:
+## Local development
 
-   ```powershell
-   npm install
-   npm run generate:checksums
-   ```
+```powershell
+npm install
+npm run typecheck
+npm run build
+npm run dev
+```
 
-4. Develop and build locally:
+Open `http://127.0.0.1:4180/` in Chrome. When the prepared runtime and model
+files are present at the paths in `src/config.ts`, the entry point can switch
+to the shared runtime `App`; otherwise it stays in the safe staging preview.
 
-   ```powershell
-   npm run dev        # prepare assets and start the Vite dev server
-   npm run build      # prepare assets, typecheck, build, and validate dist/
-   npm run package:offline  # build a deterministic offline ZIP
-   ```
+## Asset and rights boundary
 
-5. Before publishing, complete the real Chrome behavior tests and the
-   Wallpaper Engine window tests described in
-   [docs/CREATING-A-PROJECT.md](docs/CREATING-A-PROJECT.md) under "Verification
-   Gates".
+The repository contains no community-extracted game binaries. Before adding any
+model, texture, motion, voice, or music, record its origin and permitted use in
+`research/STELLA-SORA-RESEARCH.md` and `research/PROVENANCE.md`. Do not treat a
+download link or a community mirror as redistribution permission.
 
-> The template repository itself (without character assets) can run
-> `npm run check` (typecheck, regression tests, structure validation), but
-> `npm run build` requires real assets in `local-assets/original/`.
+## References
 
-## Placeholders to Replace
-
-When creating a character project, replace the following with real content:
-
-| Location | Content |
-| --- | --- |
-| `PROJECT` in `src/config.ts` | project id, slug, title, version label |
-| `MODEL` in `src/config.ts` | model paths, animations/bones/hit parameters, design viewport |
-| `BGM` / `DIALOGUES` in `src/config.ts` | BGM file and dialogue/subtitle content |
-| `public/project.json` | title, description, preview, rating, and tags |
-| `public/preview.gif` | generated 256×256 animated preview image (created during acceptance) |
-| `public/THIRD-PARTY-NOTICES.txt` | provenance and license records for the real assets |
-| `public/OFFLINE-README.txt` | version number and installation notes |
-| `research/PROVENANCE.md` | provenance and hashes for every binary asset |
-
-See [docs/STRUCTURE.md](docs/STRUCTURE.md) for details.
-
-## npm Commands
-
-| Command | Purpose | Requires character assets |
-| --- | --- | --- |
-| `npm run typecheck` | TypeScript type check | No |
-| `npm test` | display layout, subtitle, settings contract, log bridge regression tests | No |
-| `npm run validate:structure` | template/project structure validation | No |
-| `npm run check` | combined entry point for the three above | No |
-| `npm run generate:checksums` / `verify:checksums` | generate/verify the asset SHA-256 manifest | Yes |
-| `npm run prepare:assets` | validate and copy model/audio/BGM/Spine runtime into `public/` | Yes |
-| `npm run dev` | prepare assets and start the dev server | Yes |
-| `npm run build` | prepare assets, typecheck, build, and validate `dist/` | Yes |
-| `npm run package:offline` | build a deterministic offline ZIP with manifest validation | Yes |
-| `npm run inspect:spine` | export animation/bone/event report from the `.skel` | Yes |
-| `npm run generate:model-textures` | generate 4K/8K texture tiers with Real-CUGAN | Yes (optional) |
-
-## Updating the Model
-
-The runtime and toolchain are released through npm versions; template changes
-only affect new projects. See [docs/UPGRADING.md](docs/UPGRADING.md) for
-dependency upgrades and migrations.
-
-## Verification Gates
-
-Before any functional change is deployed to a Wallpaper Engine project
-directory, you must:
-
-1. Run end-to-end behavior tests in a user-opened external Chrome and check
-   the console for errors;
-2. Test pointer interaction, property callbacks, and pause/resume in a real
-   Wallpaper Engine window;
-3. Only then copy or sync the build artifacts.
-
-Browser-side `?debug=1`, `?testWeInterfaces`, etc. are pre-checks only and
-cannot replace a real Wallpaper Engine window test. See
-[docs/ASSET-PIPELINE.md](docs/ASSET-PIPELINE.md) for asset preparation and
-release workflows.
-
-## Copyright Notice
-
-Wallpapers created from this template bundle Blue Archive game assets
-(characters, artwork, voices, music, subtitle text). Those assets belong to
-their respective rights holders, including NEXON Games Co., Ltd., Yostar, and
-other Blue Archive rightsholders. Character projects must keep this notice
-(with the rights holders listed above) in their README and distribution
-descriptions, and must state that the project and its assets are provided for
-informational and educational purposes only. Fan projects are unofficial and
-not affiliated with, sponsored by, or endorsed by those companies.
+- [Chinese official site](https://stellasora.yostar.cn/)
+- [MaaStellaSora](https://github.com/MaaStellaSora/MaaStellaSora)
+- [Community Live2D extraction discussion](https://live2dhub.com/t/topic/5279)

@@ -5,33 +5,27 @@ import {
 } from "ba-memorial-lobby-wallpaper-runtime";
 
 export type VoiceLocale = "ja" | "zh-cn" | "ko";
-export type SubtitleLocale = "zh-cn" | "ja" | "ko" | "en";
+export type SubtitleLocale = "zh-cn" | "ja" | "en";
 
-// ---------------------------------------------------------------------------
-// Project identity.
-//
-// This file is the single source of truth for character-specific content.
-// Replace every placeholder value with the actual character data before
-// building a wallpaper from this template. See docs/CREATING-A-PROJECT.md.
-// ---------------------------------------------------------------------------
+/**
+ * The first Stella Sora trial deliberately keeps the content contract small.
+ * Chitose is a Live2D character in the source game, while the reused BA
+ * runtime currently consumes Spine data. These paths are reserved for a later
+ * locally prepared adapter output and are not claimed to be source filenames.
+ */
 export const PROJECT = {
-  id: "blue-archive-my-character",
-  slug: "my-character",
-  title: "My Character (Variant)",
-  editionLabel: `PUBLIC EDITION · ${__WALLPAPER_VERSION__}`,
+  id: "stella-sora-chitose",
+  slug: "chitose",
+  title: "Stella Sora · Chitose",
+  editionLabel: "EXPERIMENTAL EDITION · resource staging",
 } as const;
 
-export const VOICE_LOCALES: readonly VoiceLocale[] = ["ja", "zh-cn", "ko"];
-export const SUBTITLE_LOCALES: readonly SubtitleLocale[] = [
-  "zh-cn",
-  "ja",
-  "ko",
-  "en",
-];
+export const VOICE_LOCALES: readonly VoiceLocale[] = ["zh-cn", "ja"];
+export const SUBTITLE_LOCALES: readonly SubtitleLocale[] = ["zh-cn", "ja", "en"];
 
 export const BGM = {
-  title: "My Character BGM",
-  path: `./assets/${PROJECT.slug}/bgm/my-character-bgm.flac`,
+  title: "Chitose BGM (to be supplied)",
+  path: `./assets/${PROJECT.slug}/bgm/chitose.flac`,
 } as const;
 
 export interface DialogueLine {
@@ -47,17 +41,20 @@ export interface DialogueDefinition {
   lines: readonly DialogueLine[];
 }
 
-// Replace the placeholder model/animation/bone values below with values
-// obtained from `npm run inspect:spine` after placing the real model in
-// local-assets/original/model/.
+// Do not invent in-game dialogue. Fill this from a source cleared for local
+// use, together with matching voice files, after selecting the model adapter.
+export const DIALOGUES: readonly DialogueDefinition[] = [];
+
 export const MODEL = {
-  binary: `./assets/${PROJECT.slug}/model/my-character.skel`,
+  binary: `./assets/${PROJECT.slug}/model/chitose.skel`,
   atlases: {
-    "2k": `./assets/${PROJECT.slug}/model/my-character.atlas`,
-    "4k": `./assets/${PROJECT.slug}/model-4k/my-character.atlas`,
-    "8k": `./assets/${PROJECT.slug}/model-8k/my-character.atlas`,
+    "2k": `./assets/${PROJECT.slug}/model/chitose.atlas`,
+    "4k": `./assets/${PROJECT.slug}/model-4k/chitose.atlas`,
+    "8k": `./assets/${PROJECT.slug}/model-8k/chitose.atlas`,
   },
-  spineVersion: "3.8.99",
+  // Placeholder for the reused Spine runtime contract. Stella Sora source
+  // assets are reported as Unity/Live2D and need an explicit conversion layer.
+  spineVersion: "4.2.33",
   introAnimation: "Start_Idle_01",
   idleAnimation: "Idle_01",
   designViewport: {
@@ -91,43 +88,6 @@ export const MODEL = {
     dialogueGraceSeconds: 0.75,
   },
 } as const;
-
-// Example dialogue placeholders. Replace the ids with the real event ids used
-// by the voice files and fill in the localized subtitle text.
-function placeholderLine(id: string, number: number): DialogueLine {
-  return {
-    id,
-    text: {
-      "zh-cn": `示例台词 ${number}`,
-      ja: `Example line ${number}`,
-      ko: `Example line ${number}`,
-      en: `Example line ${number}`,
-    },
-  };
-}
-
-export const DIALOGUES: readonly DialogueDefinition[] = [
-  {
-    index: 1,
-    motionAnimation: "Talk_01_M",
-    attachmentAnimation: "Talk_01_A",
-    duration: 8,
-    lines: [
-      placeholderLine("example_dialogue_1_1", 1),
-      placeholderLine("example_dialogue_1_2", 2),
-    ],
-  },
-  {
-    index: 2,
-    motionAnimation: "Talk_02_M",
-    attachmentAnimation: "Talk_02_A",
-    duration: 8,
-    lines: [
-      placeholderLine("example_dialogue_2_1", 3),
-      placeholderLine("example_dialogue_2_2", 4),
-    ],
-  },
-] as const;
 
 export function voicePath(eventId: string, locale: VoiceLocale): string {
   return `./assets/${PROJECT.slug}/audio/${locale}/${eventId.toLowerCase()}.ogg`;
