@@ -1,6 +1,6 @@
 {
   "contentrating": "Everyone",
-  "description": "Stella Sora · Chitose interactive web wallpaper trial. The shared runtime shell and host lifecycle are wired, while the game-specific Live2D/Unity resources remain local staging inputs. No proprietary game binaries are bundled in this repository.\n\n《星塔旅人》千都世互动 Web 壁纸试作。已接入通用运行时外壳与宿主生命周期；游戏专属 Live2D/Unity 资源暂作为本地待补齐输入。本仓库不包含未确认授权的游戏二进制资源。",
+  "description": "Stella Sora Chitose interactive Live2D wallpaper trial. Uses local staging inputs for the first prototype; no game binaries are bundled in the source repository.\n\n《星塔旅人》千都世互动 Live2D 壁纸试作。模型资源仅作为本地构建输入，不随源码仓库发布。",
   "file": "index.html",
   "general": {
     "properties": {
@@ -20,8 +20,8 @@
   "preview": "preview.gif",
   "ratingsex": "none",
   "ratingviolence": "none",
-  "tags": ["Anime", "Interactive"],
-  "title": "Stella Sora · 千都世 Chitose · Interactive Trial",
+  "tags": ["Anime", "Interactive", "Live2D"],
+  "title": "Stella Sora · 千都世 Chitose · Live2D Trial",
   "type": "web",
   "version": 2,
   "visibility": "public"

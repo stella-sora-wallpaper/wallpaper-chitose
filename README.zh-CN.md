@@ -1,15 +1,19 @@
 # 《星塔旅人》千都世 Web 壁纸试作
 
-这是一个面向 Wallpaper Engine Web 类型的轻量试作项目，选择角色千都世（Chitose）。项目复用了 `ba-memorial-lobby-wallpaper-runtime` 的界面外壳与宿主桥接，但不引入蔚蓝档案主线的资源获取和发布流水线。
+这是一个面向 Wallpaper Engine Web 类型的轻量试作项目，选择千都世
+（Chitose）制作第一张“回忆特写”Live2D 互动壁纸。项目复用了
+`ba-memorial-lobby-wallpaper-runtime` 的外壳与宿主桥接，但没有引入蔚蓝档案主线的完整资源流水线。
 
 ## 当前范围
 
-- 已接入运行时外壳、日志入口、Wallpaper Engine 元数据和宿主桥接。
-- 在模型资源到位前，使用资源待补齐预览保持项目可运行。
-- 预览态支持鼠标移动、画布点击，以及宿主通用属性、用户属性、暂停/恢复回调的状态显示。
-- 尚未放入游戏专属 Live2D/Unity 文件、语音、BGM 和对话文本。
-
-原游戏角色资源按 Live2D/Unity 输入处理；当前复用的蓝档运行时消费 Spine 资源，因此真正接入千都世模型前还需要经过审查的适配/转换步骤。
+- 加载本地 `14401_full` 千都世 Cubism 模型及动作资源。
+- 使用千都世“回忆特写”的官方分层场景资源，并播放模型中的官方入场动作。
+- 鼠标移动驱动模型中可用的头部与眼睛参数。
+- 点击角色或按 Enter/Space 播放特殊动作。
+- 禁用 Live2D 模型的拖动、缩放和双击复位；拖动不会改变人物位置。
+- 复用 BA 主线 runtime 的调试面板、日志查看器、面板布局和 WE 生命周期桥接。
+- 接入 Wallpaper Engine 的通用属性、用户属性、暂停/恢复生命周期回调。
+- 模型文件作为本地、被忽略的构建输入，不提交到仓库。
 
 ## 本地开发
 
@@ -20,14 +24,18 @@ npm run build
 npm run dev
 ```
 
-然后在 Chrome 打开 `http://127.0.0.1:4180/`。当 `src/config.ts` 中声明的运行时和模型文件准备好后，入口可以切换到共享运行时 `App`；否则保持安全的资源待补齐预览。
+然后在 Chrome 打开 `http://127.0.0.1:4180/`。试作从 Live2D 官方托管地址加载 Cubism Core；本仓库不再分发该专有运行库。
 
-## 资源与权利边界
+## 资源与授权边界
 
-仓库不包含社区解包的游戏二进制文件。Wiki 调研、互动内容索引和资源来源记录统一放在 GitHub 的[互动内容 Issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)与[资源池许可 Issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2)，不作为本地研究文档维护。加入模型、纹理、动作、语音或音乐前，必须先记录来源与允许用途。下载链接或社区镜像本身不等于获得再分发许可。
+仓库不包含提取出的游戏二进制资源。调研结论与资源来源记录在 GitHub
+Issue：[互动内容](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)、
+[资源池与授权](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2)、
+[千都世 Live2D 试作](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/4)。
+下载链接或社区镜像本身不等于再分发许可。
 
 ## 参考
 
-- [《星塔旅人》中文官网](https://stellasora.yostar.cn/)
+- [中文官网](https://stellasora.yostar.cn/)
 - [MaaStellaSora](https://github.com/MaaStellaSora/MaaStellaSora)
 - [Live2DHub 社区导出讨论](https://live2dhub.com/t/topic/5279)
