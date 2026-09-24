@@ -1,12 +1,15 @@
-.stella-trial { background: #071c25; }
-.stella-game-scene { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #70b6b2; transition: none; }
-.stella-trial #wallpaper { position: absolute; z-index: 1; cursor: crosshair; background: transparent; }
-.stella-trial .debug-panel-toggle { z-index: 10; color: rgba(255,255,255,.92); border-color: rgba(177,221,255,.5); background: rgba(7,14,29,.72); }
-.stella-trial .status-panel { z-index: 9; }
+.stella-chitose { background: #071c25; }
+.stella-scene-composition { position: absolute; left: 50%; top: 50%; z-index: 0; transform-origin: center; pointer-events: none; overflow: visible; }
+.stella-game-scene { position: absolute; left: 0; top: 0; z-index: 0; overflow: hidden; background: #70b6b2; transition: none; }
+.stella-chitose #wallpaper, .stella-chitose #wallpaper-opening-b { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; cursor: pointer; background: transparent; transition: opacity 0s; }
+.stella-chitose #wallpaper { z-index: 1; }
+.stella-chitose #wallpaper-opening-b { z-index: 2; pointer-events: none; }
+.stella-chitose .debug-panel-toggle { z-index: 10; color: rgba(255,255,255,.92); border-color: rgba(177,221,255,.5); background: rgba(7,14,29,.72); }
+.stella-chitose .status-panel { z-index: 9; }
 .stella-game-scene-layer { position: absolute; display: block; max-width: none; pointer-events: none; user-select: none; transform-origin: center; }
 .stella-game-scene-base { transform-origin: center; }
 .stella-game-scene[data-scene-state="error"] { background: #071c25; }
-.stella-trial #loading { display: none !important; }
+.stella-chitose #loading { display: none !important; }
 .stella-trial-panel { position: fixed; z-index: 5; left: clamp(22px, 5vw, 88px); bottom: clamp(22px, 5vh, 72px); width: min(430px, calc(100vw - 44px)); padding: 26px 30px 28px; color: #f4f5ff; border: 1px solid rgba(177,221,255,.38); border-radius: 18px; background: linear-gradient(145deg, rgba(13,26,57,.92), rgba(47,31,83,.86)); box-shadow: 0 18px 70px rgba(0,0,0,.38), inset 0 0 28px rgba(176,220,255,.08); backdrop-filter: blur(12px); font-family: system-ui,sans-serif; }
 .stella-trial-kicker { margin: 0 0 10px; color: #9edcff; font-size: 11px; letter-spacing: .18em; }
 .stella-trial-panel h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); font-weight: 700; letter-spacing: .03em; }

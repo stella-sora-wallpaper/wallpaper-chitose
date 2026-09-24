@@ -1,0 +1,4 @@
+[submodule "vendor/StellaSoraData"]
+	path = vendor/StellaSoraData
+	url = https://github.com/Hiro420/StellaSoraData
+	branch = main

@@ -7,9 +7,10 @@
 ## 当前范围
 
 - 加载本地 `14401_full` 千都世 Cubism 模型及动作资源。
-- 使用千都世“回忆特写”的官方分层场景资源，并播放模型中的官方入场动作。
-- 鼠标移动驱动模型中可用的头部与眼睛参数。
-- 点击角色或按 Enter/Space 播放特殊动作。
+- 使用千都世“回忆特写”的官方分层场景资源；专属 Unity 开场舞台留待后续架构实验，本版本不启用。
+- 只有长按拖动才驱动模型中可用的头部与眼睛参数，未点击时不会自动跟随。
+- 点击角色触发对话音声与字幕；按 Enter/Space 播放独立的特殊动作。
+- 开启“摸头”后，点击当前模型头部命中区会播放官方 `special_a`/`special_b` 互动动作。
 - 禁用 Live2D 模型的拖动、缩放和双击复位；拖动不会改变人物位置。
 - 复用 BA 主线 runtime 的调试面板、日志查看器、面板布局和 WE 生命周期桥接。
 - 接入 Wallpaper Engine 的通用属性、用户属性、暂停/恢复生命周期回调。
@@ -24,7 +25,7 @@ npm run build
 npm run dev
 ```
 
-然后在 Chrome 打开 `http://127.0.0.1:4180/`。试作从 Live2D 官方托管地址加载 Cubism Core；本仓库不再分发该专有运行库。
+然后在 Chrome 打开 `http://127.0.0.1:4180/`。本地 Cubism Core 仅作为构建输入，不提交到仓库。
 
 ## 资源与授权边界
 
@@ -39,3 +40,7 @@ Issue：[互动内容](https://github.com/stella-sora-wallpaper/wallpaper-chitos
 - [中文官网](https://stellasora.yostar.cn/)
 - [MaaStellaSora](https://github.com/MaaStellaSora/MaaStellaSora)
 - [Live2DHub 社区导出讨论](https://live2dhub.com/t/topic/5279)
+
+## 版权声明
+
+本项目中可能出现的《星塔旅人》角色模型、动画、立绘、背景、语音、字幕文本、音乐及其他游戏资产，版权归其各自权利方（Yostar 等《星塔旅人》相关权利方）所有。本项目及其资产仅用于信息与教育目的，不用于任何商业用途；本项目为非官方粉丝项目，与上述公司无隶属、赞助或背书关系。若权利方要求，相关资产将被移除。

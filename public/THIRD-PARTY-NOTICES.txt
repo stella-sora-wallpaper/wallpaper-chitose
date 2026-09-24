@@ -4,9 +4,16 @@ Third-Party Notices
 This trial uses the `ba-memorial-lobby-wallpaper-runtime` package for its Web
 Wallpaper Engine shell and host bridge.
 
-No Stella Sora game binaries are bundled in this repository. The source game
-and its characters, art, audio, and software remain the property of their
-respective rightsholders. Any future local asset addition must be documented
-in the repository's [interaction-content issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/1)
-and [resource-pool licensing issue](https://github.com/stella-sora-wallpaper/wallpaper-chitose/issues/2)
-before distribution.
+The source repository does not commit Stella Sora game binaries. A
+distribution package may include manually staged game-derived Live2D, art,
+audio, or dialogue inputs. The source game and its characters, names, models,
+animations, art, backgrounds, audio, subtitle text, music, and software remain
+the property of their respective rights holders, including Yostar and other
+Stella Sora rightsholders.
+
+Copyright Notice
+----------------
+This unofficial fan project and its assets are provided for informational and
+educational purposes only, without any commercial intent. The project is not
+affiliated with, sponsored by, or endorsed by those companies. A rights
+holder's request will be honored by removing the affected assets.

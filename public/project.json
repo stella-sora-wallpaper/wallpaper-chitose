@@ -1,19 +1,371 @@
 {
   "contentrating": "Everyone",
-  "description": "Stella Sora Chitose interactive Live2D wallpaper trial. Uses local staging inputs for the first prototype; no game binaries are bundled in the source repository.\n\n《星塔旅人》千都世互动 Live2D 壁纸试作。模型资源仅作为本地构建输入，不随源码仓库发布。",
+  "description": "Stella Sora Chitose interactive Live2D wallpaper. Includes the Chitose main scene, CN/JP voice playback, dialogue subtitles, BGM, pointer interactions, head patting, and the BA-derived settings/debug UX. The official Unity opening stage is not included in this build. This unofficial fan work and its assets are provided for informational and educational purposes only, without any commercial intent; all game assets belong to their respective rights holders.\n\n《星塔旅人》千都世互动 Live2D 壁纸。包含主场景、中文/日语音声、对话字幕、BGM、指针交互、摸头动作，以及复用自蔚蓝档案主线的设置与调试体验。本版本不包含官方 Unity 开场舞台。本项目及其资产仅用于信息与教育目的，不用于任何商业用途；本项目为非官方粉丝项目，游戏资源版权归其各自权利方所有。",
   "file": "index.html",
   "general": {
     "properties": {
-      "fpslimit": {
-        "fraction": false,
+      "qualitypreset": {
         "index": 0,
-        "max": 60,
-        "min": 15,
+        "options": [
+          { "label": "Default (1080P / 2K / 60 FPS)", "value": "default" },
+          { "label": "Eco (720P / 2K / 30 FPS)", "value": "eco" },
+          { "label": "2K (1440P / 4K / 60 FPS)", "value": "2k" },
+          { "label": "4K (2160P / 4K / 60 FPS)", "value": "4k" },
+          { "label": "Maximum (2160P / 8K / 160 FPS)", "value": "maximum" },
+          { "label": "Custom", "value": "custom" }
+        ],
         "order": 0,
+        "text": "Visual Quality",
+        "type": "combo",
+        "value": "default"
+      },
+      "schemecolor": {
+        "index": 1,
+        "order": 1,
+        "text": "Theme Color",
+        "type": "color",
+        "value": "0.055000 0.110000 0.145000"
+      },
+      "renderresolution": {
+        "condition": "qualitypreset.value == 'custom'",
+        "index": 2,
+        "options": [
+          { "label": "720P", "value": "720p" },
+          { "label": "1080P", "value": "1080p" },
+          { "label": "2K", "value": "1440p" },
+          { "label": "4K", "value": "2160p" }
+        ],
+        "order": 2,
+        "text": "Render Resolution",
+        "type": "combo",
+        "value": "1080p"
+      },
+      "modelresolution": {
+        "condition": "qualitypreset.value == 'custom'",
+        "index": 3,
+        "options": [
+          { "label": "2K", "value": "2k" },
+          { "label": "4K", "value": "4k" },
+          { "label": "8K", "value": "8k" }
+        ],
+        "order": 3,
+        "text": "Model Texture Resolution",
+        "type": "combo",
+        "value": "2k"
+      },
+      "fpslimit": {
+        "condition": "qualitypreset.value == 'custom'",
+        "fraction": false,
+        "index": 4,
+        "max": 160,
+        "min": 15,
+        "order": 4,
         "step": 1,
         "text": "FPS Limit",
         "type": "slider",
         "value": 60
+      },
+      "positionpreset": {
+        "index": 5,
+        "options": [{ "label": "Default", "value": "default" }, { "label": "Custom", "value": "custom" }],
+        "order": 10,
+        "text": "Position & Scale",
+        "type": "combo",
+        "value": "default"
+      },
+      "modelscale": {
+        "condition": "positionpreset.value == 'custom'",
+        "fraction": true,
+        "index": 6,
+        "max": 1.4,
+        "min": 0.6,
+        "order": 11,
+        "precision": 2,
+        "step": 0.01,
+        "text": "Scene Scale",
+        "type": "slider",
+        "value": 1.0
+      },
+      "modelx": {
+        "condition": "positionpreset.value == 'custom'",
+        "fraction": false,
+        "index": 7,
+        "max": 1000,
+        "min": -1000,
+        "order": 12,
+        "text": "Scene X",
+        "type": "slider",
+        "value": 0
+      },
+      "modely": {
+        "condition": "positionpreset.value == 'custom'",
+        "fraction": false,
+        "index": 8,
+        "max": 1000,
+        "min": -1000,
+        "order": 13,
+        "text": "Scene Y",
+        "type": "slider",
+        "value": 0
+      },
+      "modelrotation": {
+        "condition": "positionpreset.value == 'custom'",
+        "fraction": false,
+        "index": 37,
+        "max": 360,
+        "min": 0,
+        "order": 14,
+        "text": "Scene Rotation",
+        "type": "slider",
+        "value": 0
+      },
+      "interactionpreset": {
+        "index": 9,
+        "options": [{ "label": "Default", "value": "default" }, { "label": "Custom", "value": "custom" }],
+        "order": 20,
+        "text": "Animation & Interactions",
+        "type": "combo",
+        "value": "default"
+      },
+      "interactions": {
+        "condition": "interactionpreset.value == 'custom'",
+        "index": 11,
+        "order": 22,
+        "text": "Interactive Actions",
+        "type": "bool",
+        "value": true
+      },
+      "mousetracking": {
+        "condition": "interactionpreset.value == 'custom' && interactions.value == true",
+        "index": 12,
+        "order": 23,
+        "text": "Mouse Tracking",
+        "type": "bool",
+        "value": true
+      },
+      "headpatting": {
+        "condition": "interactionpreset.value == 'custom' && interactions.value == true",
+        "index": 13,
+        "order": 24,
+        "text": "Head Patting",
+        "type": "bool",
+        "value": true
+      },
+      "voicelines": {
+        "condition": "interactionpreset.value == 'custom' && interactions.value == true",
+        "index": 14,
+        "order": 25,
+        "text": "Dialogue",
+        "type": "bool",
+        "value": true
+      },
+      "muted": {
+        "index": 15,
+        "order": 30,
+        "text": "Mute",
+        "type": "bool",
+        "value": false
+      },
+      "bgmvolume": {
+        "condition": "muted.value == false",
+        "fraction": false,
+        "index": 16,
+        "max": 100,
+        "min": 0,
+        "order": 31,
+        "step": 1,
+        "text": "BGM Volume",
+        "type": "slider",
+        "value": 50
+      },
+      "voicevolume": {
+        "condition": "muted.value == false && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "fraction": false,
+        "index": 17,
+        "max": 100,
+        "min": 0,
+        "order": 32,
+        "step": 1,
+        "text": "Dialogue Volume",
+        "type": "slider",
+        "value": 70
+      },
+      "dialogueautoplay": {
+        "condition": "interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true)",
+        "index": 18,
+        "order": 40,
+        "text": "Dialogue Auto Play",
+        "type": "bool",
+        "value": false
+      },
+      "dialoguelanguagepreset": {
+        "condition": "interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true)",
+        "index": 19,
+        "options": [{ "label": "Simplified Chinese", "value": "zh-cn" }, { "label": "Japanese", "value": "ja" }, { "label": "Custom", "value": "custom" }],
+        "order": 41,
+        "text": "Dialogue Language",
+        "type": "combo",
+        "value": "zh-cn"
+      },
+      "voicelanguage": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 20,
+        "options": [{ "label": "Simplified Chinese", "value": "zh-cn" }, { "label": "Japanese", "value": "ja" }],
+        "order": 42,
+        "text": "Voice Language",
+        "type": "combo",
+        "value": "zh-cn"
+      },
+      "showsubtitles": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 21,
+        "order": 43,
+        "text": "Show Subtitles",
+        "type": "bool",
+        "value": true
+      },
+      "subtitlelanguage": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && showsubtitles.value == true && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 22,
+        "options": [{ "label": "Simplified Chinese", "value": "zh-cn" }, { "label": "Japanese", "value": "ja" }, { "label": "English", "value": "en" }],
+        "order": 44,
+        "text": "Primary Subtitle Language",
+        "type": "combo",
+        "value": "zh-cn"
+      },
+      "showsecondarysubtitles": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && showsubtitles.value == true && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 23,
+        "order": 45,
+        "text": "Show Secondary Subtitles",
+        "type": "bool",
+        "value": false
+      },
+      "secondarysubtitlelanguage": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && showsubtitles.value == true && showsecondarysubtitles.value == true && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 24,
+        "options": [{ "label": "Simplified Chinese", "value": "zh-cn" }, { "label": "Japanese", "value": "ja" }, { "label": "English", "value": "en" }],
+        "order": 46,
+        "text": "Secondary Subtitle Language",
+        "type": "combo",
+        "value": "ja"
+      },
+      "subtitlealignment": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 25,
+        "options": [{ "label": "Center", "value": "center" }, { "label": "Left", "value": "left" }, { "label": "Right", "value": "right" }],
+        "order": 47,
+        "text": "Subtitle Alignment",
+        "type": "combo",
+        "value": "center"
+      },
+      "subtitleposition": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "index": 26,
+        "options": [{ "label": "Bottom Center", "value": "bottom-center" }, { "label": "Top Center", "value": "top-center" }, { "label": "Screen Center", "value": "screen-center" }, { "label": "Bottom Left", "value": "bottom-left" }, { "label": "Custom", "value": "custom" }],
+        "order": 48,
+        "text": "Subtitle Position",
+        "type": "combo",
+        "value": "bottom-center"
+      },
+      "subtitlex": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && subtitleposition.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "fraction": false,
+        "index": 27,
+        "max": 1000,
+        "min": -1000,
+        "order": 49,
+        "text": "Subtitle X",
+        "type": "slider",
+        "value": 0
+      },
+      "subtitley": {
+        "condition": "dialoguelanguagepreset.value == 'custom' && subtitleposition.value == 'custom' && (interactionpreset.value == 'default' || (interactionpreset.value == 'custom' && interactions.value == true && voicelines.value == true))",
+        "fraction": false,
+        "index": 28,
+        "max": 1000,
+        "min": -1000,
+        "order": 50,
+        "text": "Subtitle Y",
+        "type": "slider",
+        "value": 0
+      },
+      "debugpreset": {
+        "index": 29,
+        "options": [{ "label": "Off", "value": "off" }, { "label": "Debug Panel Only", "value": "panel" }, { "label": "Custom", "value": "custom" }],
+        "order": 60,
+        "text": "Debug",
+        "type": "combo",
+        "value": "off"
+      },
+      "drawhitboxes": {
+        "condition": "false",
+        "index": 30,
+        "order": 61,
+        "text": "Show Interactive Areas (unavailable)",
+        "type": "bool",
+        "value": false
+      },
+      "debugpanelenabled": {
+        "condition": "debugpreset.value == 'custom'",
+        "index": 31,
+        "order": 62,
+        "text": "Enable Debug Panel",
+        "type": "bool",
+        "value": false
+      },
+      "panelpositionpreset": {
+        "condition": "debugpreset.value == 'panel' || (debugpreset.value == 'custom' && debugpanelenabled.value == true)",
+        "index": 33,
+        "options": [{ "label": "Default", "value": "default" }, { "label": "Custom", "value": "custom" }],
+        "order": 63,
+        "text": "Debug Panel Position & Scale",
+        "type": "combo",
+        "value": "default"
+      },
+      "panelscale": {
+        "condition": "panelpositionpreset.value == 'custom' && (debugpreset.value == 'panel' || (debugpreset.value == 'custom' && debugpanelenabled.value == true))",
+        "fraction": true,
+        "index": 34,
+        "max": 1.4,
+        "min": 0.6,
+        "order": 64,
+        "precision": 2,
+        "step": 0.01,
+        "text": "Debug Panel Size",
+        "type": "slider",
+        "value": 1
+      },
+      "panelx": {
+        "condition": "panelpositionpreset.value == 'custom' && (debugpreset.value == 'panel' || (debugpreset.value == 'custom' && debugpanelenabled.value == true))",
+        "fraction": false,
+        "index": 35,
+        "max": 1000,
+        "min": -1000,
+        "order": 65,
+        "text": "Debug Panel X",
+        "type": "slider",
+        "value": 0
+      },
+      "panely": {
+        "condition": "panelpositionpreset.value == 'custom' && (debugpreset.value == 'panel' || (debugpreset.value == 'custom' && debugpanelenabled.value == true))",
+        "fraction": false,
+        "index": 36,
+        "max": 1000,
+        "min": -1000,
+        "order": 66,
+        "text": "Debug Panel Y",
+        "type": "slider",
+        "value": 0
+      },
+      "panellanguage": {
+        "condition": "debugpreset.value == 'panel' || (debugpreset.value == 'custom' && debugpanelenabled.value == true)",
+        "index": 32,
+        "options": [{ "label": "Simplified Chinese", "value": "zh-cn" }, { "label": "English", "value": "en" }],
+        "order": 67,
+        "text": "Panel Language",
+        "type": "combo",
+        "value": "zh-cn"
       }
     }
   },
@@ -21,7 +373,7 @@
   "ratingsex": "none",
   "ratingviolence": "none",
   "tags": ["Anime", "Interactive", "Live2D"],
-  "title": "Stella Sora · 千都世 Chitose · Live2D Trial",
+  "title": "Stella Sora · 千都世 Chitose · Interactive Live2D",
   "type": "web",
   "version": 2,
   "visibility": "public"

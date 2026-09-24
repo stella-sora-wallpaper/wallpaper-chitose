@@ -4,7 +4,7 @@
   "runtime": { "package": "ba-memorial-lobby-wallpaper-runtime", "range": "^0.5.0" },
   "content": { "studentId": "chitose", "variantId": "base" },
   "resources": {
-    "model": { "sourceTier": "live2d", "outputTiers": ["source"] },
+    "model": { "sourceTier": "2k", "outputTiers": ["2k", "4k", "8k"], "format": "live2d-cubism" },
     "preview": true,
     "source": {
       "provider": "manual-staging",
