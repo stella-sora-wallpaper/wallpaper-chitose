@@ -7,7 +7,7 @@ import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
-const baRoot = path.resolve(projectRoot, "..", "blue-archive");
+const baRoot = path.resolve(projectRoot, "..", "..", "blue-archive");
 const toolRoot = path.join(
   baRoot,
   "wallpaper-hare-camping",
@@ -20,6 +20,20 @@ const executable = process.env.REALCUGAN_PATH ?? path.join(toolRoot, "realcugan-
 const modelPath = process.env.REALCUGAN_MODEL_PATH ?? path.join(toolRoot, "models-se");
 const sourceRoot = path.join(projectRoot, "public", "assets", "chitose-live2d", "full");
 const textures = ["textures/texture_00.png", "textures/texture_01.png"];
+const sceneSourceRoot = path.join(projectRoot, "public", "assets", "chitose-live2d", "backgrounds");
+const sceneTextures = [
+  "14401_live2d_Full_BG_001_a.png",
+  "14401_live2d_Full_BG_005_a.png",
+  "14401_live2d_Full_BG_006_a.png",
+  "14401_live2d_Full_BG_007_a.png",
+  "14401_live2d_Full_BG_008_a.png",
+  "14401_live2d_Full_BG_009_a.png",
+  "14401_live2d_Full_BG_010_a.png",
+  "14401_live2d_Full_BG_012_a.png",
+  "14401_live2d_Full_BG_013_a.png",
+  "14401_live2d_Full_BG_014_a.png",
+  "14401_live2d_Full_BG_016_a.png",
+];
 const tiers = [
   ["4k", 2],
   ["8k", 4],
@@ -42,6 +56,26 @@ for (const [tier, scale] of tiers) {
   for (const texture of textures) {
     const source = path.join(sourceRoot, texture);
     const output = path.join(sourceRoot, "..", `full-${tier}`, texture);
+    await mkdir(path.dirname(output), { recursive: true });
+    await run(["-i", source, "-o", output, "-s", String(scale), "-n", "-1", "-m", modelPath]);
+    const [upscaled, original] = await Promise.all([readFile(output), readFile(source)]);
+    const dimensions = pngDimensions(upscaled, output);
+    const originalDimensions = pngDimensions(original, source);
+    if (
+      dimensions.width !== originalDimensions.width * scale
+      || dimensions.height !== originalDimensions.height * scale
+      || dimensions.colorType !== 6
+    ) {
+      throw new Error(`${output} is not a ${scale}x RGBA upscale of ${source}`);
+    }
+    console.log(`${tier}: ${texture} ${dimensions.width}x${dimensions.height}`);
+  }
+}
+
+for (const [tier, scale] of tiers) {
+  for (const texture of sceneTextures) {
+    const source = path.join(sceneSourceRoot, texture);
+    const output = path.join(sceneSourceRoot, `..`, `backgrounds-${tier}`, texture);
     await mkdir(path.dirname(output), { recursive: true });
     await run(["-i", source, "-o", output, "-s", String(scale), "-n", "-1", "-m", modelPath]);
     const [upscaled, original] = await Promise.all([readFile(output), readFile(source)]);
