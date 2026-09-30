@@ -1,6 +1,7 @@
 export const PROJECT = {
   id: "stella-sora-chitose",
   slug: "chitose",
-  title: "Stella Sora · Chitose",
-  editionLabel: "EXPERIMENTAL EDITION · Live2D trial",
+  version: "0.1.0",
+  title: "Chitose",
+  editionLabel: "0.1.0",
 } as const;

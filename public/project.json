@@ -1,6 +1,6 @@
 {
   "contentrating": "Everyone",
-  "description": "Stella Sora Chitose interactive Live2D wallpaper. Includes the Chitose main scene, CN/JP voice playback, dialogue subtitles, BGM, pointer interactions, head patting, and the BA-derived settings/debug UX. The official Unity opening stage is not included in this build. This unofficial fan work and its assets are provided for informational and educational purposes only, without any commercial intent; all game assets belong to their respective rights holders.\n\n《星塔旅人》千都世互动 Live2D 壁纸。包含主场景、中文/日语音声、对话字幕、BGM、指针交互、摸头动作，以及复用自蔚蓝档案主线的设置与调试体验。本版本不包含官方 Unity 开场舞台。本项目及其资产仅用于信息与教育目的，不用于任何商业用途；本项目为非官方粉丝项目，游戏资源版权归其各自权利方所有。",
+  "description": "Voice: CN/JP · Subtitles: CN/JP/EN · Textures: 2K/4K/8K\n\nChitose interactive Live2D wallpaper for Stella Sora's memory snapshot. Includes the Chitose main scene, Chinese/Japanese voices, Chinese/Japanese/English subtitles, head patting, mouse tracking, BGM, dialogue playback, and selectable render/texture quality. The official Unity opening stage is not included in this build. This is a fan-made project for informational and educational purposes only; all Stella Sora assets belong to their respective rights holders.\n\n语音：中/日 · 字幕：中/日/英 · 纹理：2K/4K/8K\n\n《星塔旅人》千都世（Chitose）回忆特写互动 Live2D 壁纸：包含主场景、中日语音、中日英字幕、摸头、视线跟随、BGM、对话播放，以及可选渲染和纹理画质。本项目为粉丝自制，仅用于信息与教育目的；所有《星塔旅人》资产归其各自权利方所有。",
   "file": "index.html",
   "general": {
     "properties": {
@@ -372,8 +372,8 @@
   "preview": "preview.gif",
   "ratingsex": "none",
   "ratingviolence": "none",
-  "tags": ["Anime", "Interactive", "Live2D"],
-  "title": "Stella Sora · 千都世 Chitose · Interactive Live2D",
+  "tags": ["Anime", "Interactive"],
+  "title": "Stella Sora · 星塔旅人 · Chitose · 千都世 · チトセ · 8K 互动",
   "type": "web",
   "version": 2,
   "visibility": "public"

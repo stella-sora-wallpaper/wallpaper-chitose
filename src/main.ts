@@ -11,8 +11,8 @@ if (!(root instanceof HTMLElement)) throw new Error("Missing #app root element."
 
 createWallpaperShell(root, {
   title: PROJECT.title,
-  canvasLabel: `${PROJECT.title} Live2D animated wallpaper`,
-  editionLabel: "EXPERIMENTAL EDITION · Live2D trial",
+  canvasLabel: `Stella Sora · 星塔旅人 · ${PROJECT.title} · 千都世 · チトセ Live2D animated wallpaper`,
+  editionLabel: PROJECT.editionLabel,
 });
 
 await mountResourceStagingPanel(root);
