@@ -51,6 +51,10 @@ const OFFICIAL_OPENING_TIMELINE = [
 ] as const;
 const OFFICIAL_OPENING_DURATION_MS = 11967;
 const DIALOGUE_IDS = ["a", "b", "c", "d", "e", "f", "g"].map((suffix) => `vo_cgstory_144_${suffix}`);
+// Body performance is shared between language presets in the game. Keep the
+// voice locale independent: Japanese voice/audio and subtitle timing may
+// differ, but the character's authored dialogue motion must not change.
+const DIALOGUE_MOTION_LOCALE = "cn" as const;
 const DIALOGUE_COMMANDS = [
   ["主公，==W==万分抱歉……==W==妾身非但未能领悟“人刀合一”之道，==W==至今也未曾为主公做出任何值得称道之事，==W==实在羞愧难当。", "既如此……==W==妾身只能“断刀”谢罪了！"],
   ["努力……==W==妾身的努力并未带来任何成果。==W==这样的“努力”，真的能称之为努力吗？"],
@@ -94,8 +98,19 @@ const DIALOGUE_EVENTS: Readonly<Record<string, Readonly<Record<"cn" | "jp", read
   vo_cgstory_144_g: { cn: [{ atMs: 67, name: "start" }, { atMs: 2483, name: "next" }, { atMs: 3717, name: "next" }, { atMs: 6267, name: "end" }, { atMs: 6883, name: "start" }, { atMs: 8967, name: "next" }, { atMs: 13417, name: "next" }, { atMs: 15083, name: "done" }], jp: [{ atMs: 17, name: "start" }, { atMs: 3783, name: "next" }, { atMs: 5450, name: "next" }, { atMs: 8283, name: "end" }, { atMs: 9400, name: "start" }, { atMs: 11150, name: "next" }, { atMs: 13717, name: "next" }, { atMs: 17217, name: "next" }, { atMs: 18133, name: "done" }] },
 };
 const SCENE_ASSET_ROOT = "./assets/chitose-live2d/backgrounds";
+const SCENE_ASSET_ROOTS: Readonly<Record<ChitoseModelResolution, string>> = {
+  "2k": SCENE_ASSET_ROOT,
+  "4k": "./assets/chitose-live2d/backgrounds-4k",
+  "8k": "./assets/chitose-live2d/backgrounds-8k",
+};
 const SCENE_WIDTH = 2400;
 const SCENE_HEIGHT = 1700;
+const RENDER_HEIGHTS: Readonly<Record<WallpaperSettings["renderResolution"], number>> = {
+  "720p": 720,
+  "1080p": 1080,
+  "1440p": 1440,
+  "2160p": 2160,
+};
 const SCENE_LAYERS = [
   { file: "14401_live2d_Full_BG_001_a", x: 0, y: 0, width: 2400, height: 1700 },
   { file: "14401_live2d_Full_BG_006_a", x: -8.2, y: 5.55, width: 772, height: 604 },
@@ -119,6 +134,14 @@ function logicalModelSurfaceSize(): { width: number; height: number } {
   return {
     width: Math.max(Math.round(visualSceneWidth), 1),
     height: Math.max(Math.round(visualSceneHeight), 1),
+  };
+}
+
+function renderSurfaceSize(renderResolution: WallpaperSettings["renderResolution"]): { width: number; height: number } {
+  const height = RENDER_HEIGHTS[renderResolution];
+  return {
+    width: Math.max(Math.round(height * SCENE_WIDTH / SCENE_HEIGHT), 1),
+    height,
   };
 }
 
@@ -233,6 +256,31 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   composition.dataset.compositionSource = "game-memory-snapshot-14401";
   root.insertBefore(composition, canvas);
   composition.append(scene, openingCanvas, canvas);
+  const sceneImages = [...scene.querySelectorAll<HTMLImageElement>("img")];
+  let activeSceneResolution: ChitoseModelResolution = "2k";
+  let sceneResolutionRequest = 0;
+  const loadSceneResolution = (resolution: ChitoseModelResolution): Promise<void> => {
+    if (resolution === activeSceneResolution && sceneImages.every((image) => image.complete && image.naturalWidth > 0)) {
+      return Promise.resolve();
+    }
+    const request = ++sceneResolutionRequest;
+    const rootPath = SCENE_ASSET_ROOTS[resolution];
+    return Promise.all(SCENE_LAYERS.map((layer) => new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error(`Scene image failed to load: ${rootPath}/${layer.file}.png`));
+      image.src = `${rootPath}/${layer.file}.png`;
+    }))).then((loadedImages) => {
+      if (request !== sceneResolutionRequest) return;
+      sceneImages.forEach((image, index) => {
+        const next = loadedImages[index];
+        if (!next) return;
+        image.src = next.src;
+      });
+      activeSceneResolution = resolution;
+      scene.dataset.sceneResolution = resolution;
+    });
+  };
   // Keep the complete scene atomic during startup. The background image can
   // load before Cubism finishes creating the model and textures; showing it
   // early exposes an unnatural background-only frame. Visibility is switched
@@ -263,6 +311,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   let replayOpening: () => void = () => undefined;
   let skipToIdle: () => void = () => undefined;
   let playNextDialogue: () => void = () => undefined;
+  let startLocalizedIdle: () => void = () => undefined;
   const debugPanel = mountTrialDebugPanel(root, wallpaperLogger, adapter, {
     onReplayOpening: () => replayOpening(),
     onSkipToIdle: () => skipToIdle(),
@@ -280,6 +329,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   const state = { paused: false, clicks: 0, motionIndex: 0, dialogueIndex: 0 };
   const dialogueTimeline = new AvgDialogueTimelineAdapter();
   let settings: Readonly<WallpaperSettings> = adapter.current;
+  let previousVoiceLocale = resolveDialogueVoiceLocale(settings.voiceLocale);
   let activeDialogueIndex = -1;
   let openingCurves: OpeningCurveData | undefined;
   let openingAnimationFrame: number | undefined;
@@ -289,6 +339,8 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   let openingTimers: number[] = [];
   let motionEntries: MotionEntry[] = [];
   let openingMotionEntries: MotionEntry[] = [];
+  let idleMotionGeneration = 0;
+  let idleMotionCycle = 0;
   let parameterNames = new Set<string>();
   let renderFrameRequest: number | undefined;
   const frameLimiter = new FrameLimiter();
@@ -300,6 +352,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   let activeVoiceElapsedMs = 0;
   let activeVoiceKey: string | undefined;
   const lipSyncAudioCache = new Map<string, ArrayBuffer>();
+  let stopCurrentMotion: () => void = () => undefined;
+  const setEyesOpen = (target: Live2DCubismModel | undefined) => {
+    if (!target?.loaded) return;
+    if (target.parameters.ids.includes("ParamEyeLOpen")) target.setParameter("ParamEyeLOpen", 1);
+    if (target.parameters.ids.includes("ParamEyeROpen")) target.setParameter("ParamEyeROpen", 1);
+  };
   const resolveDialoguePage = (eventId: string, pageIndex: number, locale: DialogueSubtitleLocale): string | undefined => {
     const dialogueIndex = DIALOGUE_IDS.indexOf(eventId);
     if (dialogueIndex < 0 || activeDialogueIndex < 0) return undefined;
@@ -352,6 +410,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       activeVoiceStartedAt = 0;
       activeVoiceElapsedMs = 0;
       if (dialogueTimeline.active !== eventId) subtitle.hide();
+      if (activeDialogueIndex < 0 && model?.loaded && !state.paused) startLocalizedIdle();
       if (settings.dialogueAutoPlay && !state.paused && state.dialogueIndex < DIALOGUE_IDS.length) {
         window.setTimeout(() => playNextDialogue(), 800);
       } else if (settings.dialogueAutoPlay) {
@@ -453,11 +512,10 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     const previousY = live2d.y;
     const displayWidth = live2d.canvas.style.width;
     const displayHeight = live2d.canvas.style.height;
-    // Keep the Live2D camera viewport in logical scene coordinates. The
-    // selected quality changes the source texture/model package, but this
-    // renderer uses the canvas buffer to derive its camera projection. A
-    // 4K/8K backing buffer would therefore enlarge the model instead of
-    // increasing output quality.
+    // Keep the Live2D camera viewport in the authored scene aspect ratio while
+    // using the selected render preset for the canvas backing buffer. The CSS
+    // size is restored after resize(), so changing quality never changes the
+    // composition geometry or the model's floor anchor.
     live2d.canvas.style.width = `${targetSize.width}px`;
     live2d.canvas.style.height = `${targetSize.height}px`;
     live2d.resize();
@@ -494,7 +552,10 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     enablePhysics: true,
     enableEyeblink: true,
     enableBreath: true,
-    enableMotion: true,
+    // Motion playback is explicitly managed below. The renderer's built-in
+    // fallback targets an `Idle` group, while this model stores every motion
+    // in `Full`; leaving it enabled would stop at the last dialogue frame.
+    enableMotion: false,
     enableExpression: true,
     enableLipsync: true,
     enableMovement: false,
@@ -519,11 +580,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       surface.style.width = `${visualSceneWidth}px`;
       surface.style.height = `${visualSceneHeight}px`;
     }
+    const renderSize = renderSurfaceSize(settings.renderResolution);
     root.style.backgroundColor = `rgb(${Math.round(settings.backgroundColor[0] * 255)}, ${Math.round(settings.backgroundColor[1] * 255)}, ${Math.round(settings.backgroundColor[2] * 255)})`;
     requiredElement(root, "#status-viewport").textContent = `${window.innerWidth}×${window.innerHeight}`;
     requiredElement(root, "#status-render-resolution").textContent = `${settings.renderResolution} / ${settings.modelResolution}`;
-    if (model) resizeLive2dViewport(model);
-    if (openingModel) resizeLive2dViewport(openingModel);
+    if (model) resizeLive2dViewport(model, renderSize);
+    if (openingModel) resizeLive2dViewport(openingModel, renderSize);
     if (model?.loaded) applyOfficialModelAnchor(model);
     if (openingModel?.loaded) applyOfficialModelAnchor(openingModel);
   };
@@ -583,7 +645,30 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     canvas.dataset.lastHostEvent = value;
   };
 
+  const restartActiveDialogueMotion = () => {
+    if (!model?.loaded || activeDialogueIndex < 0 || state.paused) return;
+    const eventId = DIALOGUE_IDS[activeDialogueIndex];
+    if (!eventId) return;
+    const motionIndex = motionEntries.findIndex(
+      (entry) => basename(entry.File).toLowerCase() === `${eventId}_${DIALOGUE_MOTION_LOCALE}`,
+    );
+    if (motionIndex < 0) {
+      canvas.dataset.dialogueMotionRestore = "missing";
+      return;
+    }
+    // The renderer intentionally clears the motion queue when pausing. Restart
+    // the active dialogue motion after WE resumes; otherwise audio/timeline
+    // continue while the character remains frozen until the next dialogue.
+    stopCurrentMotion();
+    void model.startMotion("Full", motionIndex, MOTION_PRIORITY_FORCE);
+    motionLabel.textContent = basename(motionEntries[motionIndex]?.File ?? eventId);
+    debugPanel.setAnimation(motionLabel.textContent);
+    debugPanel.setInteraction("对话");
+    canvas.dataset.dialogueMotionRestore = eventId;
+  };
+
   adapter.subscribePaused((paused) => {
+      const wasPaused = state.paused;
       if (activeVoiceKey && activeVoiceStartedAt > 0) {
         activeVoiceElapsedMs += Math.max(performance.now() - activeVoiceStartedAt, 0);
         activeVoiceStartedAt = paused ? 0 : performance.now();
@@ -598,15 +683,52 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       debugPanel.setPhase(status.textContent);
       setHostEvent(paused ? "pause" : "resume");
       canvas.dataset.trialPaused = String(paused);
+      if (wasPaused && !paused) {
+        window.requestAnimationFrame(() => {
+          if (state.paused) return;
+          if (activeDialogueIndex >= 0) restartActiveDialogueMotion();
+          else if (model?.loaded) startLocalizedIdle();
+        });
+      }
   });
   canvas.dataset.trialHostBridge = "installed";
   canvas.dataset.trialState = "loading";
   adapter.subscribe((next) => {
+    const nextVoiceLocale = resolveDialogueVoiceLocale(next.voiceLocale);
+    const voiceLocaleChanged = nextVoiceLocale !== previousVoiceLocale;
+    const hadActiveDialogue = activeDialogueIndex >= 0 || dialogueTimeline.active !== undefined || voice.getSnapshot().playing;
     settings = next;
+    previousVoiceLocale = nextVoiceLocale;
+    if (voiceLocaleChanged) {
+      // A language preset is a runtime boundary: cancel the old voice and
+      // timeline immediately, then restart the model from a clean visual
+      // state so a looping old-language motion cannot block the new one.
+      dialogueTimeline.stop();
+      activeDialogueIndex = -1;
+      subtitle.hide();
+      voice.stop();
+      activeVoiceKey = undefined;
+      activeVoiceStartedAt = 0;
+      activeVoiceElapsedMs = 0;
+      canvas.dataset.voicePlayback = "stopped";
+      idleMotionCycle = 0;
+      if (model?.loaded) {
+        stopCurrentMotion();
+        setEyesOpen(model);
+        startLocalizedIdle();
+      }
+      if (hadActiveDialogue && next.dialogueAutoPlay && !state.paused && next.interactionsEnabled) {
+        window.setTimeout(() => playNextDialogue(), 50);
+      }
+    }
     if (next.modelResolution !== activeModelResolution && model?.loaded) {
       activeModelResolution = next.modelResolution;
       reloadModelForResolution(next.modelResolution);
     }
+    void loadSceneResolution(next.modelResolution).catch((error) => {
+      scene.dataset.sceneState = "error";
+      wallpaperLogger.warn("error", `背景画质档位切换失败：${error instanceof Error ? error.message : String(error)}`);
+    });
     debugPanel.sync(next);
     applyRenderSurface();
     if (!openingStartedAt) resetOpeningTransforms();
@@ -716,7 +838,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     const index = candidates[state.motionIndex % candidates.length] ?? 0;
     state.motionIndex += 1;
     state.clicks += 1;
+    stopCurrentMotion();
+    const generation = idleMotionGeneration;
     void model.startMotion("Full", index, MOTION_PRIORITY_NORMAL);
+    window.setTimeout(() => {
+      if (generation === idleMotionGeneration && activeDialogueIndex < 0) startLocalizedIdle();
+    }, 3500);
     motionLabel.textContent = `${basename(motionEntries[index]?.File ?? "Full")} · #${state.clicks}`;
     debugPanel.setAnimation(motionLabel.textContent);
     debugPanel.setLastAction(source === "click" ? "点击" : "键盘");
@@ -734,6 +861,8 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   window.addEventListener("keydown", handleKeyboardMotion);
 
   try {
+    await loadSceneResolution(settings.modelResolution);
+    await waitForSceneImages(scene);
     const settingResponse = await fetch(MODEL_URLS[settings.modelResolution], { cache: "no-store" });
     if (!settingResponse.ok) throw new Error(`model3.json HTTP ${settingResponse.status}`);
     const setting = (await settingResponse.json()) as ModelSetting;
@@ -754,7 +883,11 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
 
     model = createLive2dModel(canvas);
     await model.load(MODEL_URLS[settings.modelResolution]);
-    resizeLive2dViewport(model);
+    activeModelResolution = settings.modelResolution;
+    canvas.dataset.trialModel = `14401_full_${settings.modelResolution}`;
+    canvas.dataset.modelTextureResolution = settings.modelResolution;
+    setEyesOpen(model);
+    resizeLive2dViewport(model, renderSurfaceSize(settings.renderResolution));
     applyOfficialModelAnchor(model);
     if (OPENING_EXPERIMENT_ENABLED) openingModel = new Live2DCubismModel(openingCanvas, {
       autoAnimate: false,
@@ -777,7 +910,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     });
     if (openingModel) {
       await openingModel.load(OPENING_B_MODEL_URL);
-      resizeLive2dViewport(openingModel);
+      resizeLive2dViewport(openingModel, renderSurfaceSize(settings.renderResolution));
     }
     parameterNames = new Set(model.parameters.ids);
     model.paused = state.paused;
@@ -816,6 +949,37 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
     const openingMotionIndex = (name: string) => openingMotionEntries.findIndex(
       (entry) => basename(entry.File).toLowerCase() === name,
     );
+    const invalidateIdleMotion = () => { idleMotionGeneration += 1; };
+    stopCurrentMotion = () => {
+      invalidateIdleMotion();
+      model?.motionController.stopMotions();
+      // live2d-renderer 0.6.x leaves the Cubism priority fields unchanged
+      // when stopMotions() removes a looping motion. Reset them here so the
+      // next language/action motion is not rejected by reserveMotion().
+      if (model?.motionManager) {
+        model.motionManager._currentPriority = 0;
+        model.motionManager._reservePriority = 0;
+      }
+    };
+    startLocalizedIdle = () => {
+      if (!model?.loaded || state.paused || activeDialogueIndex >= 0) return;
+      const locale = resolveDialogueVoiceLocale(settings.voiceLocale) === "zh-cn" ? "cn" : "jp";
+      // The language-suffixed idle_* clips are authored facial/action states;
+      // some are intentionally closed-eye poses (for example idle_c_cn).
+      // The game's normal lobby idle is the shared idle.motion clip, while
+      // locale-specific motion files belong to dialogue演出 selection below.
+      const index = idleIndex >= 0 ? idleIndex : fullIdleIndex;
+      if (index < 0) return;
+      idleMotionCycle = 0;
+      stopCurrentMotion();
+      setEyesOpen(model);
+      void model.startMotion("Full", index, MOTION_PRIORITY_IDLE);
+      motionLabel.textContent = basename(motionEntries[index]?.File ?? "idle");
+      debugPanel.setAnimation(motionLabel.textContent);
+      debugPanel.setInteraction("待机");
+      canvas.dataset.idleMotionLocale = locale;
+      canvas.dataset.idleMotion = motionLabel.textContent;
+    };
     let modelReloadRequest = 0;
     const publishModelDiagnostics = (surface: HTMLCanvasElement, live2d: Live2DCubismModel) => {
       surface.dataset.live2dNativeGeometry = JSON.stringify({
@@ -866,7 +1030,8 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
         const nextModel = createLive2dModel(canvas);
         try {
           await nextModel.load(url);
-          resizeLive2dViewport(nextModel);
+          setEyesOpen(nextModel);
+          resizeLive2dViewport(nextModel, renderSurfaceSize(settings.renderResolution));
           if (request !== modelReloadRequest) {
             nextModel.destroy();
             return;
@@ -880,16 +1045,16 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
           delete canvas.dataset.headPatRegionReady;
           publishModelDiagnostics(canvas, nextModel);
           const restoredMotionIndex = restoredDialogue?.eventId
-            ? motionEntries.findIndex((entry) => basename(entry.File).toLowerCase() === `${restoredDialogue.eventId}_${restoredDialogue.locale === "zh-cn" ? "cn" : "jp"}`)
+            ? motionEntries.findIndex((entry) => basename(entry.File).toLowerCase() === `${restoredDialogue.eventId}_${DIALOGUE_MOTION_LOCALE}`)
             : -1;
           if (restoredMotionIndex >= 0) {
-            void nextModel.startMotion("Full", restoredMotionIndex, MOTION_PRIORITY_NORMAL);
+            stopCurrentMotion();
+            void nextModel.startMotion("Full", restoredMotionIndex, MOTION_PRIORITY_FORCE);
             motionLabel.textContent = basename(motionEntries[restoredMotionIndex]?.File ?? restoredDialogue?.eventId ?? "dialogue");
             debugPanel.setAnimation(motionLabel.textContent);
             debugPanel.setInteraction("对话");
           } else {
-            const nextIdleIndex = motionEntries.findIndex((entry) => basename(entry.File).toLowerCase() === "idle");
-            if (nextIdleIndex >= 0) void nextModel.startMotion("Full", nextIdleIndex, MOTION_PRIORITY_IDLE);
+            startLocalizedIdle();
           }
           if (previous?.loaded) previous.destroy();
           canvas.dataset.modelTextureState = "ready";
@@ -919,7 +1084,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       const next = candidates[state.clicks % candidates.length];
       if (!next) return false;
       state.clicks += 1;
+      stopCurrentMotion();
+      const generation = idleMotionGeneration;
       void model.startMotion("Full", next.index, MOTION_PRIORITY_NORMAL);
+      window.setTimeout(() => {
+        if (generation === idleMotionGeneration && activeDialogueIndex < 0) startLocalizedIdle();
+      }, 5500);
       motionLabel.textContent = basename(next.entry.File);
       debugPanel.setAnimation(motionLabel.textContent);
       debugPanel.setInteraction("摸头");
@@ -931,10 +1101,10 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       for (const timer of openingTimers) window.clearTimeout(timer);
       openingTimers = [];
     };
-    const stopCurrentMotion = () => model?.motionController.stopMotions();
     const stopOpeningMotion = () => openingModel?.motionController.stopMotions();
     skipToIdle = () => {
       if (!model?.loaded || idleIndex < 0) return;
+      idleMotionCycle = 0;
       clearOpeningTimers();
       stopOpeningAnimation();
       openingStartedAt = 0;
@@ -942,11 +1112,52 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       stopOpeningMotion();
       openingCanvas.style.opacity = "0";
       canvas.style.opacity = "1";
-      void model.startMotion("Full", idleIndex, MOTION_PRIORITY_IDLE);
-      motionLabel.textContent = basename(motionEntries[idleIndex]?.File ?? "idle");
-      debugPanel.setAnimation(motionLabel.textContent);
-      debugPanel.setInteraction("待机");
+      startLocalizedIdle();
       canvas.dataset.openingState = "skipped";
+    };
+    // Preview generation uses the same idle-state contract as the BA preview
+    // capture code, but keeps the bridge project-specific.  The SS side does
+    // not expose the BA `__memoryLobbyWallpaperDebug` object; this adapter is
+    // intentionally read-only apart from the explicit skip-to-idle command.
+    (window as unknown as {
+      __stellaSoraWallpaperDebug?: {
+        getSnapshot: () => { renderer: {
+          modelLoaded: boolean;
+          interactionMode: string;
+          viewport: { width: number; height: number };
+          geometry: { head: { x: number; y: number; radiusX: number; radiusY: number } };
+        } };
+        skipToIdle: () => void;
+      };
+    }).__stellaSoraWallpaperDebug = {
+      getSnapshot: () => {
+        const rect = canvas.getBoundingClientRect();
+        const left = Number(headRegion.left);
+        const right = Number(headRegion.right);
+        const top = Number(headRegion.top);
+        const bottom = Number(headRegion.bottom);
+        const renderer = {
+          modelLoaded: Boolean(model?.loaded),
+          interactionMode: state.paused
+            ? "paused"
+            : activeDialogueIndex >= 0
+              ? "dialogue"
+              : canvas.dataset.openingState === "running"
+                ? "opening"
+                : "idle",
+          viewport: { width: window.innerWidth, height: window.innerHeight },
+          geometry: {
+            head: {
+              x: rect.left + ((left + right) / 2) * rect.width,
+              y: rect.top + ((top + bottom) / 2) * rect.height,
+              radiusX: Math.max(1, ((right - left) / 2) * rect.width),
+              radiusY: Math.max(1, ((bottom - top) / 2) * rect.height),
+            },
+          },
+        };
+        return { renderer };
+      },
+      skipToIdle: () => skipToIdle(),
     };
     replayOpening = () => {
       if (!model?.loaded || !openingModel?.loaded) return;
@@ -1007,11 +1218,12 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       const dialogueIndex = state.dialogueIndex;
       const eventId = DIALOGUE_IDS[dialogueIndex]!;
       const voiceLocale = resolveDialogueVoiceLocale(settings.voiceLocale);
-      const motionIndex = motionEntries.findIndex((entry) => basename(entry.File).toLowerCase() === `${eventId}_${voiceLocale === "zh-cn" ? "cn" : "jp"}`);
+      const motionIndex = motionEntries.findIndex((entry) => basename(entry.File).toLowerCase() === `${eventId}_${DIALOGUE_MOTION_LOCALE}`);
       state.dialogueIndex += 1;
+      stopCurrentMotion();
       canvas.dataset.dialogueIndex = String(dialogueIndex);
       if (settings.dialogueAutoPlay) canvas.dataset.dialogueAutoplay = "running";
-      if (motionIndex >= 0) void model.startMotion("Full", motionIndex, MOTION_PRIORITY_NORMAL);
+      if (motionIndex >= 0) void model.startMotion("Full", motionIndex, MOTION_PRIORITY_FORCE);
       const timelineEvents = DIALOGUE_EVENTS[eventId]?.[voiceLocale === "zh-cn" ? "cn" : "jp"];
       if (!timelineEvents) return;
       activeDialogueIndex = dialogueIndex;
@@ -1030,6 +1242,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
           canvas.dataset.dialogueTimelineEvent = event.name;
           canvas.dataset.dialogueTimelineComplete = eventId;
           activeDialogueIndex = -1;
+          if (!voice.getSnapshot().playing) startLocalizedIdle();
         },
       });
       if (settings.voiceEnabled && !settings.muted) {
