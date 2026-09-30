@@ -341,6 +341,7 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
   let openingMotionEntries: MotionEntry[] = [];
   let idleMotionGeneration = 0;
   let idleMotionCycle = 0;
+  let idleRestartTimer: number | undefined;
   let parameterNames = new Set<string>();
   let renderFrameRequest: number | undefined;
   const frameLimiter = new FrameLimiter();
@@ -950,8 +951,18 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       (entry) => basename(entry.File).toLowerCase() === name,
     );
     const invalidateIdleMotion = () => { idleMotionGeneration += 1; };
+    const ensureLoopingMotion = (index: number) => {
+      // live2d-renderer 0.6.x does not consistently preserve motion3.json's
+      // Meta.Loop flag for motions loaded through the Web adapter.
+      const motion = model?.motions.getValue(`Full_${index}`) as { setLoop?: (loop: boolean) => void } | null;
+      motion?.setLoop?.(true);
+    };
     stopCurrentMotion = () => {
       invalidateIdleMotion();
+      if (idleRestartTimer !== undefined) {
+        window.clearTimeout(idleRestartTimer);
+        idleRestartTimer = undefined;
+      }
       model?.motionController.stopMotions();
       // live2d-renderer 0.6.x leaves the Cubism priority fields unchanged
       // when stopMotions() removes a looping motion. Reset them here so the
@@ -973,7 +984,20 @@ export async function mountResourceStagingPanel(root: HTMLElement): Promise<void
       idleMotionCycle = 0;
       stopCurrentMotion();
       setEyesOpen(model);
-      void model.startMotion("Full", index, MOTION_PRIORITY_IDLE);
+      const idleGeneration = idleMotionGeneration;
+      ensureLoopingMotion(index);
+      void model.startMotion("Full", index, MOTION_PRIORITY_IDLE).then(() => {
+        ensureLoopingMotion(index);
+      });
+      // Some Cubism runtimes lose the authored loop flag while queueing a
+      // motion. Re-arm the official idle clip outside the current render
+      // frame so a failed loop cannot degrade into physics-only head sway.
+      idleRestartTimer = window.setTimeout(() => {
+        idleRestartTimer = undefined;
+        if (idleGeneration === idleMotionGeneration && !state.paused && activeDialogueIndex < 0) {
+          startLocalizedIdle();
+        }
+      }, 6100);
       motionLabel.textContent = basename(motionEntries[index]?.File ?? "idle");
       debugPanel.setAnimation(motionLabel.textContent);
       debugPanel.setInteraction("待机");
